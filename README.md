@@ -25,4 +25,6 @@ npm install react-login-broker-library
 
 ## Usage
 
+```
 <SessionButton platform={your_favorite_platform} onSessionReceived={your_received_session_handler} onErrorReceived={your_received_error_handler} />
+```
