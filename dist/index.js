@@ -3,24 +3,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-Object.defineProperty(exports, "GetSessionID", {
+Object.defineProperty(exports, "SessionButton", {
   enumerable: true,
   get: function get() {
-    return _SessionIDHandler.GetSessionID;
+    return _SessionButton.default;
   }
 });
-Object.defineProperty(exports, "LoginButton", {
-  enumerable: true,
-  get: function get() {
-    return _LoginButton.default;
-  }
-});
-Object.defineProperty(exports, "SetSessionID", {
-  enumerable: true,
-  get: function get() {
-    return _SessionIDHandler.SetSessionID;
-  }
-});
-var _LoginButton = _interopRequireDefault(require("./components/LoginButton"));
-var _SessionIDHandler = require("./components/SessionIDHandler");
+var _SessionButton = _interopRequireDefault(require("./components/SessionButton"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
