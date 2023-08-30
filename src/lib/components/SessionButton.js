@@ -21,7 +21,7 @@ function prepareSessionID(name, value, days) {
   return document.cookie;
 }
 
-function LoginButton({ platform, onSessionReceived, onErrorReceived }) {
+function SessionButton({ platform, onSessionReceived, onErrorReceived }) {
   const [tokenId, setTokenId] = useState(null);
   
   const confirmLogin = () => {
@@ -77,4 +77,4 @@ function LoginButton({ platform, onSessionReceived, onErrorReceived }) {
   );
 }
 
-export default LoginButton;
+export default SessionButton;
