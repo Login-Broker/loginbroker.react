@@ -12,9 +12,9 @@ npm install react-login-broker-library
 
 ```
   const handleSessionReceived = (sessionId) => {
-		console.log('Received sessionId', sessionId);
-        // Verify the sessionId on your server-side or API and get the logged in user email
-	}
+    console.log('Received sessionId', sessionId);
+    // Verify the sessionId on your server-side or API and get the logged in user email
+  }
 
   const handleErrorReceived = (error) => {
     console.log('Error happened', error);
