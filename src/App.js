@@ -6,8 +6,7 @@ function App() {
 
   const handleSessionReceived = (sessionId) => {
 		console.log('Received sessionId', sessionId);
-		// perform further action
-    // window.location.href="https://login.broker/"
+    // Verify the sessionId on your server-side or API and get the logged in user email
 	}
 
   const handleErrorReceived = (error) => {
