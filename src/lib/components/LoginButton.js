@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SetSessionID } from './SessionIDHandler';
 import './styles.css';
 
 const generateRandomString = (length) => {
@@ -14,29 +15,30 @@ const generateRandomString = (length) => {
   return randomString;
 };
 
-function getCookie(name, value, days) {
+function prepareSessionID(name, value, days) {
   const expires = new Date();
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  return name + "=" + encodeURIComponent(JSON.stringify(value)) + ";expires=" + expires.toUTCString() + ";path=/";
+  const sessionID = name + "=" + encodeURIComponent(JSON.stringify(value)) + ";expires=" + expires.toUTCString() + ";path=/";
+  SetSessionID(sessionID);
 }
 
 function LoginButton({ platform, handleLogin }) {
-  const [sessionId, setSessionId] = useState(generateRandomString(15));
+  const [tokenId, setTokenId] = useState(null);
   
   const confirmLogin = () => {
     // Implement the login logic here, similar to your login function
-    fetch(`https://api.login.broker/loginbroker/auth/status/${sessionId}`)
+    fetch(`https://api.login.broker/loginbroker/auth/status/${tokenId}`)
       .then(response => response.text()) // Read response as text
       .then(data => {
         if (data === 'completed') {
-          const loginUrl = `https://api.login.broker/account/login/${sessionId}`;
+          const loginUrl = `https://api.login.broker/account/login/${tokenId}`;
           fetch(loginUrl)
             .then(response => response.json())
             .then(data => {
               if (data.errorType) {
                 console.log(data.errorType);
               } else {
-                handleLogin(getCookie("authToken", data, 1000), "https://login.broker/account");
+                handleLogin(prepareSessionID("authToken", data, 1000));
               }
             })
         } else if (data === 'pending') {
@@ -53,17 +55,17 @@ function LoginButton({ platform, handleLogin }) {
   };
 
   const handleButtonClick = () => {
-    const newSessionId = generateRandomString(15);
-    setSessionId(newSessionId);
+    const newTokenId = generateRandomString(15);
+    setTokenId(newTokenId);
   };
 
   useEffect(() => {
-    if (sessionId) {
-      // Start the login process when sessionId is available
-      window.open('https://' + platform + '.login.broker/loginbroker/auth/' + platform + '/session/' + sessionId);
+    if (tokenId) {
+      // Start the login process when tokenId is available
+      window.open('https://' + platform + '.login.broker/loginbroker/auth/' + platform + '/session/' + tokenId);
       setTimeout(confirmLogin, 5000);
     }
-  }, [sessionId, platform, confirmLogin]);
+  }, [tokenId, platform, confirmLogin]);
 
   return (
     <button className={`login-broker-button login-broker-${platform}-button`} onClick={handleButtonClick}>

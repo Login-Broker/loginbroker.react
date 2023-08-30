@@ -1,3 +1,4 @@
 import LoginButton from "./components/LoginButton";
+import { GetSessionID, SetSessionID} from "./components/SessionIDHandler";
 
-export { LoginButton };
+export { LoginButton, GetSessionID, SetSessionID };
