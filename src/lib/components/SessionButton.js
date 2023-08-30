@@ -22,15 +22,15 @@ const generateRandomString = (length) => {
 // }
 
 function SessionButton({ platform, onSessionReceived, onErrorReceived }) {
-  const [tokenId, setTokenId] = useState(null);
+  const [sessionId, setSessionId] = useState(null);
   
   const confirmLogin = () => {
     // Implement the login logic here, similar to your login function
-    fetch(`https://api.login.broker/loginbroker/auth/status/${tokenId}`)
+    fetch(`https://api.login.broker/loginbroker/auth/status/${sessionId}`)
       .then(response => response.text()) // Read response as text
       .then(data => {
         if (data === 'completed') {
-          const loginUrl = `https://api.login.broker/account/login/${tokenId}`;
+          const loginUrl = `https://api.login.broker/account/login/${sessionId}`;
           fetch(loginUrl)
             .then(response => response.json())
             .then(data => {
@@ -38,7 +38,7 @@ function SessionButton({ platform, onSessionReceived, onErrorReceived }) {
                 console.log(data.errorType);
                 onErrorReceived(data.errorType);
               } else {
-                onSessionReceived(tokenId);
+                onSessionReceived(sessionId);
               }
             })
         } else if (data === 'pending') {
@@ -58,16 +58,16 @@ function SessionButton({ platform, onSessionReceived, onErrorReceived }) {
   };
 
   const handleButtonClick = () => {
-    setTokenId(generateRandomString(15));
+    setSessionId(generateRandomString(15));
   };
 
   useEffect(() => {
-    if (tokenId) {
-      // Start the login process when tokenId is available
-      window.open('https://' + platform + '.login.broker/loginbroker/auth/' + platform + '/session/' + tokenId);
+    if (sessionId) {
+      // Start the login process when sessionId is available
+      window.open('https://' + platform + '.login.broker/loginbroker/auth/' + platform + '/session/' + sessionId);
       setTimeout(confirmLogin, 5000);
     }
-  }, [tokenId, platform, confirmLogin]);
+  }, [sessionId, platform, confirmLogin]);
 
   return (
     <button className={`login-broker-button login-broker-${platform}-button`} onClick={handleButtonClick}>
