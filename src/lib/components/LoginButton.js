@@ -17,7 +17,8 @@ const generateRandomString = (length) => {
 function prepareSessionID(name, value, days) {
   const expires = new Date();
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  return name + "=" + encodeURIComponent(JSON.stringify(value)) + ";expires=" + expires.toUTCString() + ";path=/";
+  document.cookie = name + "=" + encodeURIComponent(JSON.stringify(value)) + ";expires=" + expires.toUTCString() + ";path=/";
+  return document.cookie;
 }
 
 function LoginButton({ platform, onSessionReceived, onErrorReceived }) {

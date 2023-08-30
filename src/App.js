@@ -7,10 +7,6 @@ function App() {
   const handleSessionReceived = (sessionId) => {
 		console.log('Received sessionId', sessionId);
 		// perform further action
-    if (sessionId && sessionId !== '') {
-      document.cookie = sessionId;
-      window.location.href = "https://login.broker/account";
-    }
 	}
 
   const handleErrorReceived = (error) => {
