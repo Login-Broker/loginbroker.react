@@ -1,23 +1,26 @@
 import logo from './logo.svg';
 import './App.css';
-import { LoginButton, GetSessionID } from './lib';
-import { useEffect, useState } from 'react';
+import { LoginButton } from './lib';
 
 function App() {
-  const [sessionID, setSessionID] = useState(GetSessionID());
 
-  useEffect(() => {
-    if (sessionID && sessionID !== '') {
-      debugger
-      document.cookie = sessionID;
+  const handleSessionReceived = (sessionId) => {
+		console.log('Received sessionId', sessionId);
+		// perform further action
+    if (sessionId && sessionId !== '') {
+      document.cookie = sessionId;
       window.location.href = "https://login.broker/account";
     }
-  }, [sessionID]);
+	}
+
+  const handleErrorReceived = (error) => {
+    console.log('Error happened', error);
+  }
   
   return (
     <div className="App">
-      <LoginButton platform={'google'} handleLogin={setSessionID} />
-      <LoginButton platform={'github'} handleLogin={setSessionID} />
+      <LoginButton platform={'google'} onSessionReceived={handleSessionReceived} onErrorReceived={handleErrorReceived} />
+      <LoginButton platform={'github'} onSessionReceived={handleSessionReceived} onErrorReceived={handleErrorReceived} />
     </div>
   );
 }

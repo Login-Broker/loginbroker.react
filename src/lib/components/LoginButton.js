@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { SetSessionID } from './SessionIDHandler';
 import './styles.css';
 
 const generateRandomString = (length) => {
@@ -18,11 +17,10 @@ const generateRandomString = (length) => {
 function prepareSessionID(name, value, days) {
   const expires = new Date();
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  const sessionID = name + "=" + encodeURIComponent(JSON.stringify(value)) + ";expires=" + expires.toUTCString() + ";path=/";
-  SetSessionID(sessionID);
+  return name + "=" + encodeURIComponent(JSON.stringify(value)) + ";expires=" + expires.toUTCString() + ";path=/";
 }
 
-function LoginButton({ platform, handleLogin }) {
+function LoginButton({ platform, onSessionReceived, onErrorReceived }) {
   const [tokenId, setTokenId] = useState(null);
   
   const confirmLogin = () => {
@@ -37,26 +35,29 @@ function LoginButton({ platform, handleLogin }) {
             .then(data => {
               if (data.errorType) {
                 console.log(data.errorType);
+                onErrorReceived(data.errorType);
               } else {
-                handleLogin(prepareSessionID("authToken", data, 1000));
+                onSessionReceived(prepareSessionID("authToken", data, 1000));
               }
             })
         } else if (data === 'pending') {
           setTimeout(confirmLogin, 2000); // Check again after 2 seconds
         } else if (data === 'failed') {
           console.log('Login failed. Try again');
+          onErrorReceived(data);
         } else {
           console.log('Unknown issue');
+          onErrorReceived(data);
         }
       })
       .catch(error => {
         console.error(error);
+        onErrorReceived(error);
       });
   };
 
   const handleButtonClick = () => {
-    const newTokenId = generateRandomString(15);
-    setTokenId(newTokenId);
+    setTokenId(generateRandomString(15));
   };
 
   useEffect(() => {
