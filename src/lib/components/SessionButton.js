@@ -14,12 +14,12 @@ const generateRandomString = (length) => {
   return randomString;
 };
 
-function prepareSessionID(name, value, days) {
-  const expires = new Date();
-  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = name + "=" + encodeURIComponent(JSON.stringify(value)) + ";expires=" + expires.toUTCString() + ";path=/";
-  return document.cookie;
-}
+// function prepareSessionID(name, value, days) {
+//   const expires = new Date();
+//   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+//   document.cookie = name + "=" + encodeURIComponent(JSON.stringify(value)) + ";expires=" + expires.toUTCString() + ";path=/";
+//   return document.cookie;
+// }
 
 function SessionButton({ platform, onSessionReceived, onErrorReceived }) {
   const [tokenId, setTokenId] = useState(null);
@@ -38,7 +38,7 @@ function SessionButton({ platform, onSessionReceived, onErrorReceived }) {
                 console.log(data.errorType);
                 onErrorReceived(data.errorType);
               } else {
-                onSessionReceived(prepareSessionID("authToken", data, 1000));
+                onSessionReceived(tokenId);
               }
             })
         } else if (data === 'pending') {
