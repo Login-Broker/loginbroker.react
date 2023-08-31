@@ -20,10 +20,14 @@ const generateRandomString = length => {
 function useLoginBroker(tenantName, platform, onSessionReceived, onErrorReceived) {
   const [sessionId, setSessionId] = (0, _react.useState)(null);
   const confirmLogin = () => {
-    fetchStatus();
+    fetchStatus(sessionId);
   };
-  const fetchStatus = () => {
-    fetch("https://api.login.broker/".concat(tenantName, "/auth/status/").concat(sessionId)).then(response => response.text()).then(handleStatusResponse).catch(handleError);
+  const fetchStatus = currentSessionId => {
+    console.log('fetchStatus starting');
+    console.log('currentSessionId:', currentSessionId);
+    if (currentSessionId) {
+      fetch("https://api.login.broker/".concat(tenantName, "/auth/status/").concat(currentSessionId)).then(response => response.text()).then(handleStatusResponse).catch(handleError);
+    }
   };
   const MAX_RETRY_COUNT = 60; // Maximum retry count (2 minutes with 2-second intervals)
 
@@ -31,36 +35,28 @@ function useLoginBroker(tenantName, platform, onSessionReceived, onErrorReceived
   let hasBeenPending = false;
   const handleStatusResponse = data => {
     if (data === 'completed') {
-      fetchLoginData();
+      onSessionReceived(sessionId);
     } else if (data === 'failed') {
       console.log('Login failed. Try again');
       onErrorReceived(data);
     } else if (data === 'pending') {
       hasBeenPending = true;
-      if (retryCount < MAX_RETRY_COUNT) {
-        retryCount++;
-        setTimeout(fetchStatus, 2000); // Retry after 2 seconds
-      } else {
-        console.log('Max retries reached while pending. Giving up.');
-        onErrorReceived(data);
-      }
+      retryLoginOrGiveUp();
     } else if (hasBeenPending) {
       console.log('Session expired');
       onErrorReceived(data);
     } else {
       console.log('Session not yet available');
+      retryLoginOrGiveUp();
     }
   };
-  const fetchLoginData = () => {
-    const loginUrl = "https://api.login.broker/account/login/".concat(sessionId);
-    fetch(loginUrl).then(response => response.json()).then(handleLoginResponse).catch(handleError);
-  };
-  const handleLoginResponse = data => {
-    if (data.errorType) {
-      console.log(data.errorType);
-      onErrorReceived(data.errorType);
+  const retryLoginOrGiveUp = () => {
+    if (retryCount < MAX_RETRY_COUNT) {
+      retryCount++;
+      setTimeout(confirmLogin, 2000); // Retry after 2 seconds
     } else {
-      onSessionReceived(sessionId);
+      console.log('Max retries reached while pending. Giving up.');
+      onErrorReceived('Max retries reached while pending. Giving up.');
     }
   };
   const handleError = error => {
@@ -68,10 +64,20 @@ function useLoginBroker(tenantName, platform, onSessionReceived, onErrorReceived
     onErrorReceived(error);
   };
   const startLoginProcess = () => {
-    setSessionId(generateRandomString(15));
-    window.open("https://".concat(platform, ".login.broker/").concat(tenantName, "/auth/").concat(platform, "/session/").concat(sessionId));
-    setTimeout(confirmLogin, 2000);
+    const newSessionId = generateRandomString(15);
+    window.open("https://".concat(platform, ".login.broker/").concat(tenantName, "/auth/").concat(platform, "/session/").concat(newSessionId));
+
+    // Wait for the window to open and to save the new session in the API  
+    setTimeout(() => {
+      setSessionId(newSessionId);
+    }, 2000); // Adjust the delay time as needed
   };
+
+  (0, _react.useEffect)(() => {
+    if (sessionId) {
+      fetchStatus(sessionId);
+    }
+  }, [sessionId]);
   return {
     startLoginProcess
   };

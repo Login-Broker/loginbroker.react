@@ -1,6 +1,6 @@
 {
   "name": "react-login-broker-library",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "files": [
