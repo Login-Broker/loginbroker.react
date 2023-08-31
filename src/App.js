@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import { SessionButton } from './lib';
+import { LoginBrokerButton } from './lib';
 
 function App() {
 
@@ -15,8 +15,8 @@ function App() {
   
   return (
     <div className="App">
-      <SessionButton platform={'google'} onSessionReceived={handleSessionReceived} onErrorReceived={handleErrorReceived} />
-      <SessionButton platform={'github'} onSessionReceived={handleSessionReceived} onErrorReceived={handleErrorReceived} />
+      <LoginBrokerButton tenantName="loginbroker" platform={'google'} onSessionReceived={handleSessionReceived} onErrorReceived={handleErrorReceived} />
+      <LoginBrokerButton tenantName="loginbroker" platform={'github'} onSessionReceived={handleSessionReceived} onErrorReceived={handleErrorReceived} />
     </div>
   );
 }

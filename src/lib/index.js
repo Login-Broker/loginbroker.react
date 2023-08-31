@@ -1,3 +1,3 @@
-import SessionButton from "./components/SessionButton";
+import LoginBrokerButton from "./components/LoginBrokerButton";
 
-export { SessionButton };
+export { LoginBrokerButton };

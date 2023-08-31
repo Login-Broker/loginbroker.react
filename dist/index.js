@@ -3,11 +3,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-Object.defineProperty(exports, "SessionButton", {
+Object.defineProperty(exports, "LoginBrokerButton", {
   enumerable: true,
   get: function get() {
-    return _SessionButton.default;
+    return _LoginBrokerButton.default;
   }
 });
-var _SessionButton = _interopRequireDefault(require("./components/SessionButton"));
+var _LoginBrokerButton = _interopRequireDefault(require("./components/LoginBrokerButton"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }

@@ -29,7 +29,7 @@ const generateRandomString = length => {
 //   return document.cookie;
 // }
 
-function SessionButton(_ref) {
+function LoginBrokerButton(_ref) {
   let {
     platform,
     onSessionReceived,
@@ -81,5 +81,5 @@ function SessionButton(_ref) {
     className: "fab fa-".concat(platform)
   }), "Login with ", platform);
 }
-var _default = SessionButton;
+var _default = LoginBrokerButton;
 exports.default = _default;
