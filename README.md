@@ -15,11 +15,13 @@ npm install react-login-broker-library
 
 ## Usage with LoginBrokerButton
 
+This is the quickest way to make it work. It will show a button to login and includes an icon if you have Font Awesome Free version 5 available.
+
 ```
   const handleSessionReceived = (sessionId) => {
-		console.log('Received sessionId', sessionId);
+    console.log('Received sessionId', sessionId);
     // Verify the sessionId on your server-side or API and get the logged in user email
-	}
+  }
 
   const handleErrorReceived = (error) => {
     console.log('Error happened', error);
@@ -34,11 +36,13 @@ npm install react-login-broker-library
 ```
 ## Usage with useLoginBroker
 
+Easy to use if you want to control how the login buttons look.
+
 ```
   const handleSessionReceived = (sessionId) => {
-		console.log('Received sessionId', sessionId);
+    console.log('Received sessionId', sessionId);
     // Verify the sessionId on your server-side or API and get the logged in user email
-	}
+  }
 
   const handleErrorReceived = (error) => {
     console.log('Error happened', error);
