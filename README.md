@@ -13,17 +13,43 @@ https://login.broker/account/
 npm install react-login-broker-library
 ```
 
-## Usage
+## Usage with LoginBrokerButton
 
 ```
   const handleSessionReceived = (sessionId) => {
-    console.log('Received sessionId', sessionId);
+		console.log('Received sessionId', sessionId);
     // Verify the sessionId on your server-side or API and get the logged in user email
-  }
+	}
 
   const handleErrorReceived = (error) => {
     console.log('Error happened', error);
   }
+  
+  return (
+    <div className="App">
+      <LoginBrokerButton tenantName="loginbroker" platform={'google'} onSessionReceived={handleSessionReceived} onErrorReceived={handleErrorReceived} />
+      <LoginBrokerButton tenantName="loginbroker" platform={'github'} onSessionReceived={handleSessionReceived} onErrorReceived={handleErrorReceived} />
+    </div>
+  );
+```
+## Usage with useLoginBroker
 
-  <LoginBrokerButton platform={your_favorite_platform} onSessionReceived={your_received_session_handler} onErrorReceived={your_received_error_handler} />
+```
+  const handleSessionReceived = (sessionId) => {
+		console.log('Received sessionId', sessionId);
+    // Verify the sessionId on your server-side or API and get the logged in user email
+	}
+
+  const handleErrorReceived = (error) => {
+    console.log('Error happened', error);
+  }
+  
+  const { startLoginProcess } = useLoginBroker("loginbroker", "google", handleSessionReceived, handleErrorReceived);
+  
+  return (
+    <div className="App">
+      {/* Example using the useLoginBroker hook */}
+      <button onClick={startLoginProcess}>Start Login Process</button>
+    </div>
+  );
 ```
