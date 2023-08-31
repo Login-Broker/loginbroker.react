@@ -21,48 +21,61 @@ const generateRandomString = length => {
   }
   return randomString;
 };
-
-// function prepareSessionID(name, value, days) {
-//   const expires = new Date();
-//   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-//   document.cookie = name + "=" + encodeURIComponent(JSON.stringify(value)) + ";expires=" + expires.toUTCString() + ";path=/";
-//   return document.cookie;
-// }
-
 function LoginBrokerButton(_ref) {
   let {
+    tenantName,
     platform,
     onSessionReceived,
     onErrorReceived
   } = _ref;
   const [sessionId, setSessionId] = (0, _react.useState)(null);
   const confirmLogin = () => {
-    // Implement the login logic here, similar to your login function
-    fetch("https://api.login.broker/loginbroker/auth/status/".concat(sessionId)).then(response => response.text()) // Read response as text
-    .then(data => {
-      if (data === 'completed') {
-        const loginUrl = "https://api.login.broker/account/login/".concat(sessionId);
-        fetch(loginUrl).then(response => response.json()).then(data => {
-          if (data.errorType) {
-            console.log(data.errorType);
-            onErrorReceived(data.errorType);
-          } else {
-            onSessionReceived(sessionId);
-          }
-        });
-      } else if (data === 'pending') {
-        setTimeout(confirmLogin, 2000); // Check again after 2 seconds
-      } else if (data === 'failed') {
-        console.log('Login failed. Try again');
-        onErrorReceived(data);
+    fetchStatus();
+  };
+  const fetchStatus = () => {
+    fetch("https://api.login.broker/".concat(tenantName, "/auth/status/").concat(sessionId)).then(response => response.text()).then(handleStatusResponse).catch(handleError);
+  };
+  const MAX_RETRY_COUNT = 60; // Maximum retry count (2 minutes with 2-second intervals)
+
+  let retryCount = 0; // Keep track of the number of retries
+  let hasBeenPending = false;
+  const handleStatusResponse = data => {
+    if (data === 'completed') {
+      fetchLoginData();
+    } else if (data === 'failed') {
+      console.log('Login failed. Try again');
+      onErrorReceived(data);
+    } else if (data === 'pending') {
+      hasBeenPending = true;
+      if (retryCount < MAX_RETRY_COUNT) {
+        retryCount++;
+        setTimeout(fetchStatus, 2000); // Retry after 2 seconds
       } else {
-        console.log('Unknown issue');
+        console.log('Max retries reached while pending. Giving up.');
         onErrorReceived(data);
       }
-    }).catch(error => {
-      console.error(error);
-      onErrorReceived(error);
-    });
+    } else if (hasBeenPending) {
+      console.log('Session expired');
+      onErrorReceived(data);
+    } else {
+      console.log('Session not yet available');
+    }
+  };
+  const fetchLoginData = () => {
+    const loginUrl = "https://api.login.broker/account/login/".concat(sessionId);
+    fetch(loginUrl).then(response => response.json()).then(handleLoginResponse).catch(handleError);
+  };
+  const handleLoginResponse = data => {
+    if (data.errorType) {
+      console.log(data.errorType);
+      onErrorReceived(data.errorType);
+    } else {
+      onSessionReceived(sessionId);
+    }
+  };
+  const handleError = error => {
+    console.error(error);
+    onErrorReceived(error);
   };
   const handleButtonClick = () => {
     setSessionId(generateRandomString(15));
@@ -70,10 +83,10 @@ function LoginBrokerButton(_ref) {
   (0, _react.useEffect)(() => {
     if (sessionId) {
       // Start the login process when sessionId is available
-      window.open('https://' + platform + '.login.broker/loginbroker/auth/' + platform + '/session/' + sessionId);
-      setTimeout(confirmLogin, 5000);
+      window.open('https://' + platform + '.login.broker/' + tenantName + '/auth/' + platform + '/session/' + sessionId);
+      setTimeout(confirmLogin, 2000);
     }
-  }, [sessionId, platform, confirmLogin]);
+  }, [sessionId, platform, tenantName, confirmLogin]);
   return /*#__PURE__*/_react.default.createElement("button", {
     className: "login-broker-button login-broker-".concat(platform, "-button"),
     onClick: handleButtonClick

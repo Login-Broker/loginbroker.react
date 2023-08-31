@@ -14,47 +14,70 @@ const generateRandomString = (length) => {
   return randomString;
 };
 
-// function prepareSessionID(name, value, days) {
-//   const expires = new Date();
-//   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-//   document.cookie = name + "=" + encodeURIComponent(JSON.stringify(value)) + ";expires=" + expires.toUTCString() + ";path=/";
-//   return document.cookie;
-// }
-
 function LoginBrokerButton({ tenantName, platform, onSessionReceived, onErrorReceived }) {
   const [sessionId, setSessionId] = useState(null);
   
   const confirmLogin = () => {
-    // Implement the login logic here, similar to your login function
+    fetchStatus();
+  };
+
+  const fetchStatus = () => {
     fetch(`https://api.login.broker/${tenantName}/auth/status/${sessionId}`)
-      .then(response => response.text()) // Read response as text
-      .then(data => {
-        if (data === 'completed') {
-          const loginUrl = `https://api.login.broker/account/login/${sessionId}`;
-          fetch(loginUrl)
-            .then(response => response.json())
-            .then(data => {
-              if (data.errorType) {
-                console.log(data.errorType);
-                onErrorReceived(data.errorType);
-              } else {
-                onSessionReceived(sessionId);
-              }
-            })
-        } else if (data === 'pending') {
-          setTimeout(confirmLogin, 2000); // Check again after 2 seconds
-        } else if (data === 'failed') {
-          console.log('Login failed. Try again');
-          onErrorReceived(data);
-        } else {
-          console.log('Unknown issue');
-          onErrorReceived(data);
-        }
-      })
-      .catch(error => {
-        console.error(error);
-        onErrorReceived(error);
-      });
+      .then(response => response.text())
+      .then(handleStatusResponse)
+      .catch(handleError);
+  };
+
+  const MAX_RETRY_COUNT = 60; // Maximum retry count (2 minutes with 2-second intervals)
+
+  let retryCount = 0; // Keep track of the number of retries
+  let hasBeenPending = false;
+
+  const handleStatusResponse = data => {
+    if (data === 'completed') {
+      fetchLoginData();
+    } else if (data === 'failed') {
+      console.log('Login failed. Try again');
+      onErrorReceived(data);
+    } else if (data === 'pending') {
+      hasBeenPending = true;
+      
+      if (retryCount < MAX_RETRY_COUNT) {
+        retryCount++;
+        setTimeout(fetchStatus, 2000); // Retry after 2 seconds
+      } else {
+        console.log('Max retries reached while pending. Giving up.');
+        onErrorReceived(data);
+      }
+      
+    } else if (hasBeenPending) {
+      console.log('Session expired');
+      onErrorReceived(data);
+    } else {
+      console.log('Session not yet available');
+    }
+  };
+
+  const fetchLoginData = () => {
+    const loginUrl = `https://api.login.broker/account/login/${sessionId}`;
+    fetch(loginUrl)
+      .then(response => response.json())
+      .then(handleLoginResponse)
+      .catch(handleError);
+  };
+
+  const handleLoginResponse = data => {
+    if (data.errorType) {
+      console.log(data.errorType);
+      onErrorReceived(data.errorType);
+    } else {
+      onSessionReceived(sessionId);
+    }
+  };
+
+  const handleError = error => {
+    console.error(error);
+    onErrorReceived(error);
   };
 
   const handleButtonClick = () => {
@@ -65,7 +88,7 @@ function LoginBrokerButton({ tenantName, platform, onSessionReceived, onErrorRec
     if (sessionId) {
       // Start the login process when sessionId is available
       window.open('https://' + platform + '.login.broker/' + tenantName + '/auth/' + platform + '/session/' + sessionId);
-      setTimeout(confirmLogin, 5000);
+      setTimeout(confirmLogin, 2000);
     }
   }, [sessionId, platform, tenantName, confirmLogin]);
 
